@@ -3,55 +3,69 @@
   (:require [goog.events :as events]
             [cljs.core.async :refer [put! <! >! chan timeout]]
             [om.core :as om :include-macros true]
-            [om.dom :as dom :include-macros true]
+            [om-tools.core :refer-macros [defcomponent]]
+            [om-tools.dom :as dom :include-macros true]
             [cljs-http.client :as http]))
 
 (enable-console-print!)
 
 (defn fetch-widgets
   [url]
-  (let [c (chan)]
     (go (let [{widgets :body} (<! (http/get url))]
-          (>! c (vec widgets))))
-    c))
+          (vec widgets))))
 
 (def app-state
-  (atom {}))
+  (atom {:widgets []}))
 
-(defn widget [{:keys [name]} owner opts]
-  (om/component
-   (dom/li nil name)))
+(defcomponent widget [{:keys [name]} owner opts]
+  (render [_]
+   (dom/li name)))
 
-(defn widget-list [{:keys [widgets]}]
-  (om/component
-   (apply dom/ul nil
-          (om/build-all widget widgets))))
+(defcomponent widget-list [{:keys [widgets]}]
+  (render [_]
+   (dom/ul
+    (om/build-all widget widgets))))
 
-(defn widget-box [app owner opts]
-  (reify
-    om/IWillMount
-    (will-mount [_]
-                (om/transact! app [:widgets] (fn [] []))
-                (go (while true
-                      (let [widgets (<! (fetch-widgets (:url opts)))]
-                        (.log js/console (pr-str widgets))
-                        (om/update! app [:widgets] widgets))
-                      (<! (timeout (:poll-interval opts))))))
-    om/IRender
-    (render [_]
-            (dom/div nil
-                     (dom/h1 nil "Widgets")
-                     (om/build widget-list app)))))
+(defcomponent widget-box [app owner]
+  (render [_]
+          (dom/div nil
+                   (dom/h1 nil "Widgets1")
+                   (om/build widget-list app))))
 
-(defn om-app [app owner]
-  (reify
-    om/IRender
-    (render [_]
-            (dom/div nil
-                     (om/build widget-box app
-                               {:opts {:url "/widgets"
-                                       :poll-interval 2000}})))))
+
+
+(defcomponent widgetpolling [app owner opts]
+  (init-state [_] {:mounted true})
+  (will-mount [_]
+              (go (while (om/get-state owner :mounted)
+                    (let [widgets (<! (fetch-widgets (:url opts)))]
+                      (.log js/console (pr-str widgets))
+                      (om/update! app [:widgets] widgets))
+                    (<! (timeout (:poll-interval opts))))))
+  (will-unmount [_] (om/set-state! owner :mounted false))
+  (render [_]
+     (om/build widget-box app))
+  )
+
+
+
+(defcomponent om-app [app owner]
+  (render [_]
+    (dom/div
+      (om/build widgetpolling app
+        {:opts {:url "/widgets"
+                :poll-interval 2000}})))
+  )
 
 (om/root om-app app-state
          {:target (. js/document (getElementById "content"))})
 
+;: form unmounting components just evaluate component inside comment
+
+(defcomponent om-nothing [app owner opts]
+  (render [_]
+   (dom/h1 "Nothing")))
+
+(comment
+  (om/root om-nothing app-state {:target (. js/document (getElementById "content"))})
+  )

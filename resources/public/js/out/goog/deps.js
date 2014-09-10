@@ -5,6 +5,8 @@ goog.addDependency("debug/error.js", ['goog.debug.Error'], []);
 goog.addDependency("dom/nodetype.js", ['goog.dom.NodeType'], []);
 goog.addDependency("asserts/asserts.js", ['goog.asserts', 'goog.asserts.AssertionError'], ['goog.debug.Error', 'goog.dom.NodeType', 'goog.string']);
 goog.addDependency("array/array.js", ['goog.array', 'goog.array.ArrayLike'], ['goog.asserts']);
+goog.addDependency("string/stringformat.js", ['goog.string.format'], ['goog.string']);
+goog.addDependency("ui/idgenerator.js", ['goog.ui.IdGenerator'], []);
 goog.addDependency("disposable/idisposable.js", ['goog.disposable.IDisposable'], []);
 goog.addDependency("disposable/disposable.js", ['goog.Disposable', 'goog.dispose', 'goog.disposeAll'], ['goog.disposable.IDisposable']);
 goog.addDependency("debug/entrypointregistry.js", ['goog.debug.EntryPointMonitor', 'goog.debug.entryPointRegistry'], ['goog.asserts']);
@@ -49,4 +51,3 @@ goog.addDependency("net/xhrio.js", ['goog.net.XhrIo', 'goog.net.XhrIo.ResponseTy
 goog.addDependency("crypt/crypt.js", ['goog.crypt'], ['goog.array', 'goog.asserts']);
 goog.addDependency("crypt/base64.js", ['goog.crypt.base64'], ['goog.crypt', 'goog.userAgent']);
 goog.addDependency("uri/uri.js", ['goog.Uri', 'goog.Uri.QueryData'], ['goog.array', 'goog.string', 'goog.structs', 'goog.structs.Map', 'goog.uri.utils', 'goog.uri.utils.ComponentIndex', 'goog.uri.utils.StandardQueryParam']);
-goog.addDependency("ui/idgenerator.js", ['goog.ui.IdGenerator'], []);
