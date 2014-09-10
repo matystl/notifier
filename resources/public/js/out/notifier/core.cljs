@@ -28,9 +28,9 @@
 
 (defcomponent widget-box [app owner]
   (render [_]
-          (dom/div nil
-                   (dom/h1 nil "Widgets1")
-                   (om/build widget-list app))))
+          (dom/div
+           (dom/h1 "Widgets1")
+           (om/build widget-list app))))
 
 
 
